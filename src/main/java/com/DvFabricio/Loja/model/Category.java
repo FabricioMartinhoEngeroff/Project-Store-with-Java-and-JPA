@@ -7,17 +7,18 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(of = "id")
 @Entity
 @Table(name = "categories")
 public class Category {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String name;
+    @EmbeddedId
+    private CategoryID categoryID;
 
-    public Category(String name) {
-        this.name = name;
+    public Category(String name){
+        this.categoryID = new CategoryID(name, "XPTO");
+    }
+
+    public String getName(){
+        return this.categoryID.getName();
     }
 }

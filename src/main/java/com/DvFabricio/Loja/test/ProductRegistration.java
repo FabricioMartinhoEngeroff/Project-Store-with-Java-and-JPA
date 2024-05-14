@@ -4,14 +4,16 @@ import com.DvFabricio.Loja.Util.JPAUtil;
 import com.DvFabricio.Loja.dao.CategoryDAO;
 import com.DvFabricio.Loja.dao.ProductDAO;
 import com.DvFabricio.Loja.model.Category;
+import com.DvFabricio.Loja.model.CategoryID;
 import com.DvFabricio.Loja.model.Product;
 import jakarta.persistence.EntityManager;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-public class CadastroDeProdutos {
+public class ProductRegistration {
 
     public static void main(String[] args) {
         registerProduct();
@@ -34,7 +36,7 @@ public class CadastroDeProdutos {
 
     private static void registerProduct() {
         Category cellphones = new Category("CELL_PHONE");
-        Product cellPhone = new Product("Xiaomi Redmi", "Muito legal", new BigDecimal("800"), cellphones);
+        Product cellPhone = new Product("Xiaomi Redmi", "Muito legal", new BigDecimal("800"), cellphones, LocalDate.of(2024, 5, 2));
 
         EntityManager em = JPAUtil.getEntityManager();
         ProductDAO productDao = new ProductDAO(em);
@@ -46,6 +48,9 @@ public class CadastroDeProdutos {
         productDao.register(cellPhone);
 
         em.getTransaction().commit();
+
+        em.find(Category.class, new CategoryID("CELL_PHONE", "xpto"));
+
         em.close();
     }
 }

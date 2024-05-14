@@ -2,10 +2,16 @@ package com.DvFabricio.Loja.dao;
 
 import com.DvFabricio.Loja.model.Product;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,7 +52,7 @@ public class ProductDAO {
     }
 
     public List<Product> findByCategoryName(String name) {
-        String jpql = "SELECT p FROM Product p WHERE p.category.name = :name";
+        String jpql = "SELECT p FROM Product p WHERE p.category.categoryID.name = :name";
         return em.createQuery(jpql, Product.class)
                 .setParameter("name", name)
                 .getResultList();
@@ -63,5 +69,51 @@ public class ProductDAO {
             return Optional.empty();
         }
     }
+
+    public List<Product> findByParameter(String name, BigDecimal price, LocalDate registerDate) {
+        String jpql = "SELECT p FROM Produto p WHERE 1=1 ";
+        if (name != null && !name.trim().isEmpty()) {
+            jpql = " AND p.nome = :nome ";
+        }
+        if (price != null) {
+            jpql = " AND p.preco = :preco ";
+        }
+        if (registerDate != null) {
+            jpql = " AND p.dataCadastro = :dataCadastro ";
+        }
+        TypedQuery<Product> query = em.createQuery(jpql, Product.class);
+        if (name != null && !name.trim().isEmpty()) {
+            query.setParameter("nome", name);
+        }
+        if (price != null) {
+            query.setParameter("preco", price);
+        }
+        if (registerDate != null) {
+            query.setParameter("dataCadastro", registerDate);
+        }
+
+        return query.getResultList();
+    }
+
+    public List<Product> findByParametersWithCriteria(String name, BigDecimal price, LocalDate registerDate) {
+        CriteriaBuilder builder = em.getCriteriaBuilder();
+        CriteriaQuery<Product> query = builder.createQuery(Product.class);
+        Root<Product> from = query.from(Product.class);
+
+        Predicate filtros = builder.and();
+        if (name != null && !name.trim().isEmpty()) {
+            filtros = builder.and(filtros, builder.equal(from.get("nome"), name));
+        }
+        if (price != null) {
+            filtros = builder.and(filtros, builder.equal(from.get("preco"), price));
+        }
+        if (registerDate != null) {
+            filtros = builder.and(filtros, builder.equal(from.get("registerDate"), registerDate));
+        }
+        query.where(filtros);
+
+        return em.createQuery(query).getResultList();
+    }
+
 
 }

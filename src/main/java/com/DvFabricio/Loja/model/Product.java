@@ -5,14 +5,16 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode(of = "id")
 @Entity
 @Table(name = "products")
+@Inheritance(strategy = InheritanceType.JOINED)
 public class Product {
 
     @Id
@@ -21,15 +23,19 @@ public class Product {
     private String name;
     private String description;
     private BigDecimal price;
-    private LocalDate dateRegister = LocalDate.now();
+    private LocalDate registerDate = LocalDate.now();
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Category category;
 
-    public Product(String name, String description, BigDecimal price, Category category) {
+    @OneToMany
+    private List<OrderItem> item = new ArrayList<>();
+
+    public Product(String name, String description, BigDecimal price, Category category, LocalDate registerDate) {
         this.name = name;
         this.description = description;
         this.price = price;
         this.category = category;
+        this.registerDate = registerDate;
     }
 }
